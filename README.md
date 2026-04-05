@@ -28,8 +28,8 @@ Hybrid fall detection system: MOG2 motion detection (edge server) + acceleromete
 ## System Architecture
 
 ```
-┌─────────────────┐                    ┌──────────────────────┐
-│   ESP32-CAM     │ ──── WiFi ────>    │   Laptop/PC          │
+┌─────────────────┐                     ┌──────────────────────┐
+│   ESP32-CAM     │   ──── WiFi ────>   │   Laptop/PC          │
 │                 │                     │   (Edge Server)      │
 │  - Capture      │                     │                      │
 │  - MJPEG        │                     │  - MOG2 Background   │
@@ -38,9 +38,9 @@ Hybrid fall detection system: MOG2 motion detection (edge server) + acceleromete
 │    Detection    │                     │  - Optical Flow      │
 │  - Vibration    │                     │  - Fall Detection    │
 │    Motor        │                     │  - Alert Manager     │
-│  - Impact       │ <─── WiFi ──────    │                      │
+│  - Impact       │   <─── WiFi ──────  │                      │
 │    Buzzer       │   (Alerts/Control)  │                      │
-└─────────────────┘                    └──────────────────────┘
+└─────────────────┘                     └──────────────────────┘
 ```
 
 ### Component Responsibilities:
@@ -301,16 +301,6 @@ CANNOT CONNECT TO ESP32-CAM
 - **camera_client.py** - MJPEG stream reader and HTTP client for ESP32 communication
 - **fall_tracker.py** - Centroid-based object tracking with optical flow ego-motion compensation
 - **alert_manager.py** - Visual overlay rendering and vibration motor triggering
-
-## Next Steps / Phase 2
-
-- [ ] Add battery power to ESP32-CAM
-- [ ] Mount ESP32-CAM on physical helmet
-- [ ] Optimize for outdoor lighting conditions
-- [ ] Add data logging (fall incidents with timestamps)
-- [ ] Implement wireless dashboard (web UI)
-- [ ] Add multiple camera support
-- [ ] Retrain YOLO for construction-specific objects
 
 ## References
 

@@ -1,5 +1,6 @@
 # 👷 Smart Safety Helmet System
-## AI-Powered Fall & Impact Detection
+
+## Hybrid Motion & Impact Detection
 
 ---
 
@@ -7,7 +8,7 @@
 
 **Goal:** Create a modular, production-ready safety helmet that detects accidents in real-time.
 
-*   **Hybrid Detection:** Combines Computer Vision (AI) and Physical Sensors.
+*   **Hybrid Detection:** Combines Motion Analysis (Background Subtraction) and Accelerometer Sensors.
 *   **Edge Computing:** Heavy processing done on a local server/PC to save battery.
 *   **Instant Alerts:** Audio (Buzzer) and Haptic (Vibration) feedback for the wearer.
 
@@ -18,66 +19,77 @@
 The system consists of two main parts communicating over WiFi:
 
 1.  **The Helmet (Edge Device - ESP32-CAM)**
-    *   Captures live video stream.
-    *   Monitors physical forces (G-force).
-    *   Provides immediate local feedback.
+    *   Captures MJPEG video stream (640x480 @ ~10 FPS).
+    *   Monitors impacts with MPU6050 accelerometer.
+    *   Provides immediate local feedback (buzzer on impact).
 2.  **The Server (Processing Unit - Python)**
-    *   Analyzes video stream using Deep Learning.
-    *   Tracks objects and detects abnormal movements.
-    *   Sends alert commands back to the helmet.
+    *   Analyzes video stream using MOG2 background subtraction.
+    *   Tracks falling objects with centroid-based tracking.
+    *   Compensates for helmet camera motion via optical flow.
+    *   Sends alert commands back to helmet.
 
 ---
 
 # 🧠 Feature 1: Visual Fall Detection
 
 **How it works:**
-*   **Camera:** ESP32-CAM streams video to the server.
-*   **AI Model:** Server runs **YOLOv5** (You Only Look Once) to detect people.
+*   **Camera:** ESP32-CAM streams MJPEG video to the server.
+*   **Motion Detection:** Server uses **MOG2 background subtraction** to detect moving objects.
 *   **Logic:**
-    *   Tracks the "Person" class.
-    *   Analyzes bounding box aspect ratio (width vs. height).
-    *   Detects rapid changes in posture indicating a fall.
+    *   Detects ANY falling object (class-agnostic, no AI model needed).
+    *   Tracks object centroids between frames.
+    *   Measures vertical velocity (pixels per frame).
+    *   Compensates for helmet camera motion using optical flow (Lucas-Kanade).
+    *   Confirms fall based on velocity threshold and consecutive frames.
+
+**Advantages:**
+*   No object classification needed (detects any falling object).
+*   Fast processing (< 50ms per frame).
+*   Works in variable lighting conditions.
+*   Minimal CPU/memory requirements.
 
 ---
 
 # 💥 Feature 2: Physical Impact Detection
 
 **How it works:**
-*   **Sensor:** MPU6050 / ADXL345 Accelerometer mounted on the helmet.
+*   **Sensor:** MPU6050 3-axis Accelerometer mounted on the helmet.
 *   **Processing:** Runs directly on the ESP32 microcontroller (Offline capable).
 *   **Trigger:**
     *   Continuously measures G-force on X, Y, Z axes.
-    *   If total acceleration exceeds a safety threshold (e.g., > 2.5G).
+    *   If total acceleration exceeds threshold (e.g., > 4.0G).
     *   **Action:** Instantly triggers the buzzer and vibration motor.
+
+**Response Time:** < 50ms (no network latency).
 
 ---
 
 # 🚨 Alert System
 
-**Two-way Communication Loop:**
+**Two-way Detection Loop:**
 
-1.  **Server-Triggered (Visual):**
-    *   Server detects fall -> Sends HTTP request to ESP32 -> ESP32 activates buzzer.
-2.  **Local-Triggered (Physical):**
-    *   Accelerometer detects impact -> ESP32 activates buzzer immediately (0 latency).
+1.  **Server-Triggered (Visual Motion):**
+    *   Server detects falling motion → Sends HTTP request to ESP32 → ESP32 activates vibration motor.
+2.  **Local-Triggered (Physical Impact):**
+    *   Accelerometer detects high G-force → ESP32 activates buzzer immediately (offline).
 
 **Feedback Mechanisms:**
-*   🔊 **Buzzer:** High-pitch audible alarm.
-*   📳 **Vibration Motor:** Haptic feedback against the helmet shell.
+*   🔊 **Buzzer:** High-pitch audible alarm on impact (6 beeps pattern).
+*   📳 **Vibration Motor:** Haptic feedback during fall detection.
 
 ---
 
 # 🛠️ Tech Stack
 
 **Hardware:**
-*   ESP32-CAM Module
-*   MPU6050 Accelerometer
-*   Active Buzzer / Vibration Motor
+*   ESP32-CAM Module (WiFi, Camera)
+*   MPU6050 Accelerometer (3-axis motion sensing)
+*   Active Buzzer / Vibration Motor (alerts)
 
 **Software:**
 *   **Firmware:** C++ (Arduino Framework)
 *   **Backend:** Python 3.x
-*   **AI/ML:** PyTorch, YOLOv5, ONNX Runtime
+*   **Computer Vision:** OpenCV (MOG2, Lucas-Kanade Optical Flow)
 *   **Communication:** HTTP / REST API over WiFi
 
 ---
@@ -86,7 +98,8 @@ The system consists of two main parts communicating over WiFi:
 
 *   **GPS Integration:** Send location coordinates via SMS/GSM module upon accident.
 *   **Cloud Dashboard:** Log incidents to a web dashboard for safety managers.
-*   **Pose Estimation:** Upgrade from bounding boxes to skeletal tracking for higher accuracy.
+*   **Advanced Pose Tracking:** Optional skeletal tracking for enhanced accuracy.
+*   **Multi-camera Support:** Monitor from multiple angles.
 
 ---
 

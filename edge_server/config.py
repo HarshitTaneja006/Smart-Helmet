@@ -9,7 +9,7 @@
 
 # CHANGE THIS TO YOUR ESP32-CAM IP ADDRESS
 # (Check Arduino Serial Monitor after ESP32 boots)
-ESP32_IP = "10.107.169.207"  # UPDATE THIS!
+ESP32_IP = "10.208.25.182"  # UPDATE THIS!
 
 # ESP32 Endpoints
 ESP32_STREAM_URL = f"http://{ESP32_IP}:81/stream"

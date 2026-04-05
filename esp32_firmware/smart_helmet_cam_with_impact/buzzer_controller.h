@@ -18,9 +18,9 @@
 // #define PASSIVE_BUZZER // Uncomment for passive buzzer (needs PWM tone)
 
 // Default buzzer patterns
-#define IMPACT_BEEP_DURATION 200    // ms for each beep
-#define IMPACT_BEEP_COUNT 3         // Number of beeps
-#define IMPACT_BEEP_INTERVAL 100    // ms between beeps
+#define IMPACT_BEEP_DURATION 500    // ms for each beep
+#define IMPACT_BEEP_COUNT 6         // Number of beeps
+#define IMPACT_BEEP_INTERVAL 95    // ms between beeps
 
 #ifdef PASSIVE_BUZZER
 #define BUZZER_FREQUENCY 2000       // Hz for passive buzzer
